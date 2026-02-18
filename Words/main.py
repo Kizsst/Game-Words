@@ -25,6 +25,26 @@ CATEGORIAS = {
             ("durazno", "peach"),
             ("limón", "lemon"),
             ("cereza", "cherry"),
+            ("mango", "mango"),
+            ("papaya", "papaya"),
+            ("kiwi", "kiwi"),
+            ("frambuesa", "raspberry"),
+            ("mora", "blackberry"),
+            ("arándano", "blueberry"),
+            ("coco", "coconut"),
+            ("aguacate", "avocado"),
+            ("pera", "pear"),
+            ("dátil", "date"),
+            ("higo", "fig"),
+            ("melocotón", "peach"),
+            ("albaricoque", "apricot"),
+            ("ciruela", "plum"),
+            ("açai", "acai"),
+            ("carambola", "starfruit"),
+            ("guanábana", "soursop"),
+            ("maracuyá", "passion fruit"),
+            ("lichi", "lychee"),
+            ("tamarindo", "tamarind"),
         ]
     },
     "palabras_facil": {
@@ -262,16 +282,17 @@ class Juego:
             with sr.Microphone() as source:
                 self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
                 audio = self.recognizer.listen(source, timeout=5)
-            return self.recognizer.recognize_google(audio, language='en-US').lower()
-        except sr.Timeout:
-            print(f"{Fore.RED}⏰ Tiempo agotado{Style.RESET_ALL}")
-            return None
+            try:
+                return self.recognizer.recognize_google(audio, language='en-US').lower()
+            except sr.UnknownValueError:
+                return "TIMEOUT"
+        except sr.WaitTimeoutError:
+            return "TIMEOUT"
         except sr.RequestError:
             print(f"{Fore.RED}⚠️ Sin internet{Style.RESET_ALL}")
             return None
-        except Exception:
-            print(f"{Fore.RED}❌ No entendí{Style.RESET_ALL}")
-            return None
+        except Exception as e:
+            return "TIMEOUT"
     
     def similitud(self, p1, p2):
         p1 = p1.replace('_', '').replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
@@ -300,6 +321,36 @@ class Juego:
             except:
                 pass
     
+    def menu_game_over(self):
+        while True:
+            self.limpiar()
+            print(f"{Back.RED}{Fore.WHITE}{'='*50}{Style.RESET_ALL}")
+            print(f"{Back.RED}{Fore.WHITE}{'':>15}⏰ GAME OVER ⏰{'':>15}{Style.RESET_ALL}")
+            print(f"{Back.RED}{Fore.WHITE}{'='*50}{Style.RESET_ALL}")
+            print(f"\n{Fore.RED}😢 No escuché nada en el tiempo límite{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}Puntos acumulados: {self.puntos}{Style.RESET_ALL}\n")
+            print(f"{Back.RED}{Fore.WHITE}{'='*50}{Style.RESET_ALL}\n")
+            
+            print(f"{Fore.GREEN}¿Qué deseas hacer?{Style.RESET_ALL}\n")
+            print(f"  {Fore.CYAN}1{Style.RESET_ALL}. Repetir esta categoría")
+            print(f"  {Fore.CYAN}2{Style.RESET_ALL}. Cambiar de categoría")
+            print(f"  {Fore.RED}3{Style.RESET_ALL}. Salir\n")
+            
+            try:
+                op = int(input(f"{Fore.YELLOW}Elige: {Style.RESET_ALL}"))
+                if op == 1:
+                    return "REPETIR"
+                elif op == 2:
+                    return "CAMBIAR"
+                elif op == 3:
+                    print(f"\n{Fore.MAGENTA}¡Hasta luego! 👋\n{Style.RESET_ALL}")
+                    sys.exit()
+            except:
+                pass
+    
+    def game_over(self):
+        return self.menu_game_over()
+    
     def ronda(self, palabra_es, palabra_en, num, total):
         self.limpiar()
         self.titulo()
@@ -311,6 +362,8 @@ class Juego:
         print(f"{Fore.YELLOW}{palabra_es.upper()}{Style.RESET_ALL}\n")
         
         respuesta = self.escuchar()
+        if respuesta == "TIMEOUT":
+            return "GAMEOVER"
         if not respuesta:
             return False
         
@@ -345,7 +398,15 @@ class Juego:
         correctas = 0
         
         for i, (palabra_es, palabra_en) in enumerate(palabras, 1):
-            if self.ronda(palabra_es, palabra_en, i, len(palabras)):
+            resultado = self.ronda(palabra_es, palabra_en, i, len(palabras))
+            if resultado == "GAMEOVER":
+                accion = self.game_over()
+                if accion == "REPETIR":
+                    self.puntos = 0
+                    return self.jugar()
+                elif accion == "CAMBIAR":
+                    return
+            elif resultado:
                 correctas += 1
         
         self.limpiar()
