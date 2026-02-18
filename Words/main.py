@@ -314,10 +314,10 @@ class Juego:
                 op = int(input(f"{Fore.YELLOW}Elige: {Style.RESET_ALL}"))
                 if op == 0:
                     print(f"\n{Fore.MAGENTA}¡Hasta luego! 👋\n{Style.RESET_ALL}")
-                    sys.exit()
+                    return "SALIR"
                 elif 1 <= op <= len(cats):
                     self.categoria = cats[op-1][0]
-                    return
+                    return "OK"
             except:
                 pass
     
@@ -344,7 +344,7 @@ class Juego:
                     return "CAMBIAR"
                 elif op == 3:
                     print(f"\n{Fore.MAGENTA}¡Hasta luego! 👋\n{Style.RESET_ALL}")
-                    sys.exit()
+                    return "SALIR"
             except:
                 pass
     
@@ -405,7 +405,9 @@ class Juego:
                     self.puntos = 0
                     return self.jugar()
                 elif accion == "CAMBIAR":
-                    return
+                    return "CAMBIAR"
+                elif accion == "SALIR":
+                    return "SALIR"
             elif resultado:
                 correctas += 1
         
@@ -431,9 +433,13 @@ class Juego:
     
     def run(self):
         while True:
-            self.menu()
+            resultado = self.menu()
+            if resultado == "SALIR":
+                break
             self.puntos = 0
-            self.jugar()
+            resultado_juego = self.jugar()
+            if resultado_juego == "SALIR":
+                break
 
 if __name__ == "__main__":
     try:
