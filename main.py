@@ -255,6 +255,18 @@ CATEGORIAS = {
             ("Las matemáticas son bastante difíciles para mí", "Mathematics is quite difficult for me"),
         ]
     },
+    "tecnologia_pro": {
+        "emoji": "💻",
+        "dificultad": "Intermedio",
+        "palabras": [
+            ("computadora", "computer"),
+            ("teclado", "keyboard"),
+            ("ratón", "mouse"),
+            ("pantalla", "screen"),
+            ("red", "network"),
+            ("programación", "programming"),
+        ]
+    },
 }
 
 class Juego:
